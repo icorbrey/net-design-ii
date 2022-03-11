@@ -1,0 +1,7 @@
+name: net_design_ii
+
+environment:
+  sdk: '>=2.10.0 <3.0.0'
+
+dependencies:
+  cisco_ios_dsl: any
