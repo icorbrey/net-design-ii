@@ -23,6 +23,13 @@ var ipAddresses = {
     'g0/0/0.30': IPv4.fromCidr('172.16.129.63', 26),
     'g0/0/0.99': IPv4.fromCidr('172.16.129.83', 29),
     'g0/0/1': IPv4.fromCidr('172.16.128.81', 30),
+    'dhcp-A-exclusion-start': IPv4.noMask('172.16.128.1'),
+    'dhcp-A-exclusion-end': IPv4.noMask('172.16.128.10'),
+    'dhcp-B-exclusion-start': IPv4.noMask('172.16.128.129'),
+    'dhcp-B-exclusion-end': IPv4.noMask('172.16.128.138'),
+    'dhcp-C-exclusion-start': IPv4.noMask('172.16.129.1'),
+    'dhcp-C-exclusion-end': IPv4.noMask('172.16.129.10'),
+    'dhcp-F-exclusion': IPv4.noMask('172.16.129.73'),
   },
   'R2': {
     'g0/0/0': IPv4.fromCidr('172.16.128.73', 29),
@@ -63,6 +70,7 @@ void run() {
       ..setMessageOfTheDay(motd)
       ..setConfigPassword(configPassword)
       ..services.passwordEncryption.enable()
+      ..ip.setDomainName('ccna.com')
       ..lines('console 0', (x) => x
         ..password.enable(remotePassword)
         ..login.enable()
@@ -98,6 +106,22 @@ void run() {
         ..ip.setGateway(ipAddresses['R1']['g0/0/1'])
         ..ipv6.addGateway(ipv6Addresses['R1']['g0/0/1'])
         ..operation.enable()
+      )
+      ..ip.dhcp.excludeAddresses(ipAddresses['R1']['dhcp-A-exclusion-start'], ipAddresses['R1']['dhcp-A-exclusion-end'])
+      ..ip.dhcp.excludeAddresses(ipAddresses['R1']['dhcp-B-exclusion-start'], ipAddresses['R1']['dhcp-B-exclusion-end'])
+      ..ip.dhcp.excludeAddresses(ipAddresses['R1']['dhcp-C-exclusion-start'], ipAddresses['R1']['dhcp-C-exclusion-end'])
+      ..ip.dhcp.excludeAddresses(ipAddresses['R1']['dhcp-F-exclusion'], ipAddresses['R1']['dhcp-F-exclusion'])
+      ..ip.dhcp.pool('Student', (x) => x
+        ..setNetworkAddress(subnets['A'])
+      )
+      ..ip.dhcp.pool('Faculty', (x) => x
+        ..setNetworkAddress(subnets['B'])
+      )
+      ..ip.dhcp.pool('HR', (x) => x
+        ..setNetworkAddress(subnets['C'])
+      )
+      ..ip.dhcp.pool('SubnetF', (x) => x
+        ..setNetworkAddress(subnets['F'])
       )
     )
   );
@@ -281,7 +305,7 @@ void run() {
       ..vlan(99, (x) => x
         ..setName('Management')
       )
-      ..interfaces('f0/3-4, f0/7-23, g0/0-', (x) => x
+      ..interfaces('f0/3-4, f0/7-23, g0/0', (x) => x
         ..operation.disable()
       )
       ..interfaces('f0/1-2', (x) => x
