@@ -51,12 +51,16 @@
   - Assign with IPv6 SLAAC (?)
 - `g0/0/0.10`
   - IPv4: Use broadcast address for subnet A (`172.16.128.127/25`)
+  - VLAN: 10
 - `g0/0/0.20`
   - IPv4: Use broadcast address for subnet B (`172.16.128.255/25`)
+  - VLAN: 20
 - `g0/0/0.30`
   - IPv4: Use broadcast address for subnet C (`172.16.129.63/26`)
+  - VLAN: 30
 - `g0/0/0.99`
   - IPv4: Use broadcast address for subnet D (`172.16.129.83/29`)
+  - VLAN: 99
 - `g0/0/1`
   - Connected to R2
   - IPv4: Use first host in subnet E (`172.16.128.81/30`)

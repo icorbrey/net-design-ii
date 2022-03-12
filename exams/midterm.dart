@@ -21,12 +21,12 @@ var ipAddresses = {
     'g0/0/0.10': IPv4.fromCidr('172.16.128.127', 25),
     'g0/0/0.20': IPv4.fromCidr('172.16.128.255', 25),
     'g0/0/0.30': IPv4.fromCidr('172.16.129.63', 26),
-    'g0/0/0.99': IPv4.fromCidr('172.16.129.71', 29),
-    'g0/0/1': IPv4.fromCidr('', 0),
+    'g0/0/0.99': IPv4.fromCidr('172.16.129.83', 29),
+    'g0/0/1': IPv4.fromCidr('172.16.128.81', 30),
   },
   'R2': {
-    'g0/0/0': IPv4.fromCidr('', 0),
-    'g0/0/1': IPv4.fromCidr('', 0),
+    'g0/0/0': IPv4.fromCidr('172.16.128.73', 29),
+    'g0/0/1': IPv4.fromCidr('172.16.128.82', 30),
   },
   'S1': {
     'vlan 99': IPv4.fromCidr('172.16.129.66', 29),
@@ -36,6 +36,16 @@ var ipAddresses = {
   },
   'S3': {
     'vlan 99': IPv4.fromCidr('172.16.129.68', 29),
+  },
+};
+
+var ipv6Addresses = {
+  'R1': {
+    'g0/0/1': IPv6.fromCidr('SLAAC', 69),
+  },
+  'R2': {
+    'g0/0/0': IPv6.fromCidr('2001:abc:456:11:1', 64),
+    'g0/0/1': IPv6.fromCidr('2001:abc:456:10:1', 64),
   },
 };
 
@@ -52,6 +62,7 @@ void run() {
       ..ip.dnsLookup.disable()
       ..setMessageOfTheDay(motd)
       ..setConfigPassword(configPassword)
+      ..services.passwordEncryption.enable()
       ..lines('console 0', (x) => x
         ..password.enable(remotePassword)
         ..login.enable()
@@ -59,6 +70,9 @@ void run() {
       ..lines('vty 0 15', (x) => x
         ..password.enable(remotePassword)
         ..login.enable()
+      )
+      ..interface('g0/0/0', (x) => x
+        // TODO IPv6 SLACC address
       )
       ..subinterface('g0/0/0.10', (x) => x
         ..ip.setGateway(ipAddresses['R1']['g0/0/0.10'])
@@ -81,6 +95,9 @@ void run() {
         ..operation.enable()
       )
       ..interface('g0/0/1', (x) => x
+        ..ip.setGateway(ipAddresses['R1']['g0/0/1'])
+        ..ipv6.addGateway(ipv6Addresses['R1']['g0/0/1'])
+        ..operation.enable()
       )
     )
   );
@@ -93,6 +110,7 @@ void run() {
       ..ip.dnsLookup.disable()
       ..setMessageOfTheDay(motd)
       ..setConfigPassword(configPassword)
+      ..services.passwordEncryption.enable()
       ..lines('console 0', (x) => x
         ..password.enable(remotePassword)
         ..login.enable()
@@ -102,8 +120,14 @@ void run() {
         ..login.enable()
       )
       ..interface('g0/0/0', (x) => x
+        ..ip.setGateway(ipAddresses['R2']['g0/0/0'])
+        ..ipv6.addGateway(ipv6Addresses['R2']['g0/0/0'])
+        ..operation.enable()
       )
       ..interface('g0/0/1', (x) => x
+        ..ip.setGateway(ipAddresses['R2']['g0/0/1'])
+        ..ipv6.addGateway(ipv6Addresses['R2']['g0/0/1'])
+        ..operation.enable()
       )
     )
   );
@@ -116,6 +140,7 @@ void run() {
       ..ip.dnsLookup.disable()
       ..setMessageOfTheDay(motd)
       ..setConfigPassword(configPassword)
+      ..services.passwordEncryption.enable()
       ..lines('console 0', (x) => x
         ..password.enable(remotePassword)
         ..login.enable()
@@ -159,7 +184,12 @@ void run() {
       ..interface('vlan 99', (x) => x
         ..ip.setGateway(ipAddresses['S1']['vlan 99'])
       )
+      ..spanningTree.enableRapidPVST()
+      ..spanningTree.setPriorityValueByOffset(10, -1)
+      ..spanningTree.portfast.enable('0/24')
+      ..spanningTree.portfast.bpduGuard.enable('0/24')
     )
+    ..saveConfig()
   );
   
   print('----------------------------------------');
@@ -213,7 +243,14 @@ void run() {
       ..interface('vlan 99', (x) => x
         ..ip.setGateway(ipAddresses['S2']['vlan 99'])
       )
+      ..spanningTree.enableRapidPVST()
+      ..spanningTree.setPriorityValueByOffset(20, -1)
+      ..spanningTree.portfast.enable('0/23')
+      ..spanningTree.portfast.enable('0/24')
+      ..spanningTree.portfast.bpduGuard.enable('0/23')
+      ..spanningTree.portfast.bpduGuard.enable('0/24')
     )
+    ..saveConfig()
   );
   
   print('----------------------------------------');
@@ -272,6 +309,8 @@ void run() {
       ..interface('vlan 99', (x) => x
         ..ip.setGateway(ipAddresses['S3']['vlan 99'])
       )
+      ..spanningTree.enableRapidPVST()
+      ..spanningTree.setPriorityValueByOffset(30, -1)
     )
   );
   
