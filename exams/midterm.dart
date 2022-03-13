@@ -18,10 +18,10 @@ var vlans = {
 
 var ipAddresses = {
   'R1': {
-    'g0/0/0.10': IPv4.fromCidr('172.16.128.127', 25),
-    'g0/0/0.20': IPv4.fromCidr('172.16.128.255', 25),
-    'g0/0/0.30': IPv4.fromCidr('172.16.129.63', 26),
-    'g0/0/0.99': IPv4.fromCidr('172.16.129.83', 29),
+    'g0/0/0.10': IPv4.fromCidr('172.16.128.126', 25),
+    'g0/0/0.20': IPv4.fromCidr('172.16.128.254', 25),
+    'g0/0/0.30': IPv4.fromCidr('172.16.129.62', 26),
+    'g0/0/0.99': IPv4.fromCidr('172.16.129.82', 29),
     'g0/0/1': IPv4.fromCidr('172.16.128.81', 30),
     'dhcp-A-exclusion-start': IPv4.noMask('172.16.128.1'),
     'dhcp-A-exclusion-end': IPv4.noMask('172.16.128.10'),
@@ -30,10 +30,13 @@ var ipAddresses = {
     'dhcp-C-exclusion-start': IPv4.noMask('172.16.129.1'),
     'dhcp-C-exclusion-end': IPv4.noMask('172.16.129.10'),
     'dhcp-F-exclusion': IPv4.noMask('172.16.129.73'),
+    'dns-server': IPv4.noMask('10.10.10.10'),
+    'default-route': IPv4.fromMask('0.0.0.0', '0.0.0.0'),
   },
   'R2': {
     'g0/0/0': IPv4.fromCidr('172.16.128.73', 29),
     'g0/0/1': IPv4.fromCidr('172.16.128.82', 30),
+    'default-route': IPv4.fromMask('0.0.0.0', '0.0.0.0'),
   },
   'S1': {
     'vlan 99': IPv4.fromCidr('172.16.129.66', 29),
@@ -49,10 +52,13 @@ var ipAddresses = {
 var ipv6Addresses = {
   'R1': {
     'g0/0/1': IPv6.fromCidr('SLAAC', 69),
+    'default-route': IPv6.fromCidr('::', 0),
   },
   'R2': {
-    'g0/0/0': IPv6.fromCidr('2001:abc:456:11:1', 64),
-    'g0/0/1': IPv6.fromCidr('2001:abc:456:10:1', 64),
+    'g0/0/0': IPv6.fromCidr('2001:abc:456:11::1', 64),
+    'g0/0/1': IPv6.fromCidr('2001:abc:456:10::1', 64),
+    'dhcp-dns-server': IPv6.noMask('2001:0:0:a::1'),
+    'default-route': IPv6.fromCidr('::', 0),
   },
 };
 
@@ -63,7 +69,9 @@ void run() {
   const configPassword = 'class';
   const remotePassword = 'cisco';
 
-  Device('router').enable((x) => x
+  print('>>> R1 <<<\n');
+
+  Device.script('router').enable((x) => x
     ..configure((x) => x
       ..setHostname('R1')
       ..ip.dnsLookup.disable()
@@ -80,61 +88,81 @@ void run() {
         ..login.enable()
       )
       ..interface('g0/0/0', (x) => x
-        // TODO IPv6 SLACC address
+        ..operation.enable()
       )
       ..subinterface('g0/0/0.10', (x) => x
-        ..ip.setGateway(ipAddresses['R1']['g0/0/0.10'])
         ..encapsulateVlan(10)
+        ..ip.setGateway(ipAddresses['R1']['g0/0/0.10'])
         ..operation.enable()
       )
       ..subinterface('g0/0/0.20', (x) => x
-        ..ip.setGateway(ipAddresses['R1']['g0/0/0.20'])
         ..encapsulateVlan(20)
+        ..ip.setGateway(ipAddresses['R1']['g0/0/0.20'])
         ..operation.enable()
       )
       ..subinterface('g0/0/0.30', (x) => x
-        ..ip.setGateway(ipAddresses['R1']['g0/0/0.30'])
         ..encapsulateVlan(30)
+        ..ip.setGateway(ipAddresses['R1']['g0/0/0.30'])
         ..operation.enable()
       )
       ..subinterface('g0/0/0.99', (x) => x
-        ..ip.setGateway(ipAddresses['R1']['g0/0/0.99'])
         ..encapsulateVlan(99)
+        ..ip.setGateway(ipAddresses['R1']['g0/0/0.99'])
         ..operation.enable()
       )
       ..interface('g0/0/1', (x) => x
         ..ip.setGateway(ipAddresses['R1']['g0/0/1'])
-        ..ipv6.addGateway(ipv6Addresses['R1']['g0/0/1'])
+        ..ipv6.enableSlaac()
         ..operation.enable()
       )
-      ..ip.dhcp.excludeAddresses(ipAddresses['R1']['dhcp-A-exclusion-start'], ipAddresses['R1']['dhcp-A-exclusion-end'])
-      ..ip.dhcp.excludeAddresses(ipAddresses['R1']['dhcp-B-exclusion-start'], ipAddresses['R1']['dhcp-B-exclusion-end'])
-      ..ip.dhcp.excludeAddresses(ipAddresses['R1']['dhcp-C-exclusion-start'], ipAddresses['R1']['dhcp-C-exclusion-end'])
-      ..ip.dhcp.excludeAddresses(ipAddresses['R1']['dhcp-F-exclusion'], ipAddresses['R1']['dhcp-F-exclusion'])
+      ..ip.setDefaultRoute(ipAddresses['R1']['default-route'], 'g0/0/1')
+      ..ipv6.setDefaultRoute(ipv6Addresses['R1']['default-route'], 'g0/0/1')
+      ..ip.dhcp.excludeAddresses(
+        ipAddresses['R1']['dhcp-A-exclusion-start'],
+        ipAddresses['R1']['dhcp-A-exclusion-end']
+      )
+      ..ip.dhcp.excludeAddresses(
+        ipAddresses['R1']['dhcp-B-exclusion-start'],
+        ipAddresses['R1']['dhcp-B-exclusion-end']
+      )
+      ..ip.dhcp.excludeAddresses(
+        ipAddresses['R1']['dhcp-C-exclusion-start'],
+        ipAddresses['R1']['dhcp-C-exclusion-end']
+      )
+      ..ip.dhcp.excludeAddresses(
+        ipAddresses['R1']['dhcp-F-exclusion'],
+        ipAddresses['R1']['dhcp-F-exclusion']
+      )
       ..ip.dhcp.pool('Student', (x) => x
         ..setNetworkAddress(subnets['A'])
+        ..setDnsServer(ipAddresses['R1']['dns-server'])
       )
       ..ip.dhcp.pool('Faculty', (x) => x
         ..setNetworkAddress(subnets['B'])
+        ..setDnsServer(ipAddresses['R1']['dns-server'])
       )
       ..ip.dhcp.pool('HR', (x) => x
         ..setNetworkAddress(subnets['C'])
+        ..setDnsServer(ipAddresses['R1']['dns-server'])
       )
       ..ip.dhcp.pool('SubnetF', (x) => x
         ..setNetworkAddress(subnets['F'])
+        ..setDnsServer(ipAddresses['R1']['dns-server'])
       )
     )
+    ..saveConfig()
   );
-  
-  print('----------------------------------------');
 
-  Device('router').enable((x) => x
+  print('\n>>> R2 <<<\n');
+
+  Device.script('router').enable((x) => x
     ..configure((x) => x
       ..setHostname('R2')
       ..ip.dnsLookup.disable()
       ..setMessageOfTheDay(motd)
       ..setConfigPassword(configPassword)
       ..services.passwordEncryption.enable()
+      ..ip.setDomainName('ccna.com')
       ..lines('console 0', (x) => x
         ..password.enable(remotePassword)
         ..login.enable()
@@ -153,12 +181,19 @@ void run() {
         ..ipv6.addGateway(ipv6Addresses['R2']['g0/0/1'])
         ..operation.enable()
       )
+      ..ip.setDefaultRoute(ipAddresses['R2']['default-route'], 'g0/0/1')
+      ..ipv6.setDefaultRoute(ipv6Addresses['R2']['default-route'], 'g0/0/1')
+      ..ipv6.dhcp.pool('Stateful', (x) => x
+        ..setDomainName('ccna.com')
+        ..setDnsServer(ipv6Addresses['R2']['dhcp-dns-server'])
+      )
     )
+    ..saveConfig()
   );
-  
-  print('----------------------------------------');
 
-  Device('switch').enable((x) => x
+  print('\n>>> S1 <<<\n');
+
+  Device.script('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S1')
       ..ip.dnsLookup.disable()
@@ -185,7 +220,7 @@ void run() {
       ..vlan(99, (x) => x
         ..setName('Management')
       )
-      ..interfaces('f0/5-23, g0/0-1', (x) => x
+      ..interfaces('f0/5-23, g0/1-2', (x) => x
         ..operation.disable()
       )
       ..interfaces('f0/1-2', (x) => x
@@ -202,7 +237,9 @@ void run() {
       )
       ..interface('f0/24', (x) => x
         ..switchport.access.enable()
-        ..switchport.access.setVlans([10, 20, 30, 99])
+        ..switchport.access.setVlan(10)
+        ..spanningTree.portfast.enable()
+        ..spanningTree.portfast.bpduGuard.enable()
         ..operation.enable()
       )
       ..interface('vlan 99', (x) => x
@@ -210,15 +247,13 @@ void run() {
       )
       ..spanningTree.enableRapidPVST()
       ..spanningTree.setPriorityValueByOffset(10, -1)
-      ..spanningTree.portfast.enable('0/24')
-      ..spanningTree.portfast.bpduGuard.enable('0/24')
     )
     ..saveConfig()
   );
-  
-  print('----------------------------------------');
 
-  Device('switch').enable((x) => x
+  print('\n>>> S2 <<<\n');
+
+  Device.script('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S2')
       ..ip.dnsLookup.disable()
@@ -244,7 +279,7 @@ void run() {
       ..vlan(99, (x) => x
         ..setName('Management')
       )
-      ..interfaces('f0/1-2, f0/7-22, g0/0-1', (x) => x
+      ..interfaces('f0/1-2, f0/7-22, g0/1-2', (x) => x
         ..operation.disable()
       )
       ..interfaces('f0/3-4', (x) => x
@@ -259,9 +294,18 @@ void run() {
         ..etherChannel.enablePAgP(3)
         ..operation.enable()
       )
-      ..interfaces('f0/23-24', (x) => x
+      ..interfaces('f0/23', (x) => x
         ..switchport.access.enable()
-        ..switchport.access.setVlans([10, 20, 30, 99])
+        ..switchport.access.setVlan(20)
+        ..spanningTree.portfast.enable()
+        ..spanningTree.portfast.bpduGuard.enable()
+        ..operation.enable()
+      )
+      ..interfaces('f0/24', (x) => x
+        ..switchport.access.enable()
+        ..switchport.access.setVlan(30)
+        ..spanningTree.portfast.enable()
+        ..spanningTree.portfast.bpduGuard.enable()
         ..operation.enable()
       )
       ..interface('vlan 99', (x) => x
@@ -269,17 +313,13 @@ void run() {
       )
       ..spanningTree.enableRapidPVST()
       ..spanningTree.setPriorityValueByOffset(20, -1)
-      ..spanningTree.portfast.enable('0/23')
-      ..spanningTree.portfast.enable('0/24')
-      ..spanningTree.portfast.bpduGuard.enable('0/23')
-      ..spanningTree.portfast.bpduGuard.enable('0/24')
     )
     ..saveConfig()
   );
-  
-  print('----------------------------------------');
 
-  Device('switch').enable((x) => x
+  print('\n>>> S3 <<<\n');
+
+  Device.script('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S3')
       ..ip.dnsLookup.disable()
@@ -305,7 +345,7 @@ void run() {
       ..vlan(99, (x) => x
         ..setName('Management')
       )
-      ..interfaces('f0/3-4, f0/7-23, g0/0', (x) => x
+      ..interfaces('f0/3-4, f0/7-24, g0/2', (x) => x
         ..operation.disable()
       )
       ..interfaces('f0/1-2', (x) => x
@@ -320,11 +360,6 @@ void run() {
         ..etherChannel.enablePAgP(3)
         ..operation.enable()
       )
-      ..interface('f0/24', (x) => x
-        ..switchport.access.enable()
-        ..switchport.access.setVlans([10, 20, 30, 99])
-        ..operation.enable()
-      )
       ..interface('g0/1', (x) => x
         ..switchport.trunk.enable()
         ..switchport.trunk.setAllowedVlans([10, 20, 30, 99])
@@ -337,10 +372,10 @@ void run() {
       ..spanningTree.setPriorityValueByOffset(30, -1)
     )
   );
-  
-  print('----------------------------------------');
 
-  Device('switch').enable((x) => x
+  print('\n>>> S4 <<<\n');
+
+  Device.script('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S4')
       ..ip.dnsLookup.disable()
