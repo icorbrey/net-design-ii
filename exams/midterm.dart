@@ -21,8 +21,8 @@ var ipAddresses = {
     'g0/0/0.10': IPv4.fromCidr('172.16.128.126', 25),
     'g0/0/0.20': IPv4.fromCidr('172.16.128.254', 25),
     'g0/0/0.30': IPv4.fromCidr('172.16.129.62', 26),
-    'g0/0/0.99': IPv4.fromCidr('172.16.129.82', 29),
-    'g0/0/1': IPv4.fromCidr('172.16.128.81', 30),
+    'g0/0/0.99': IPv4.fromCidr('172.16.129.71', 29),
+    'g0/0/1': IPv4.fromCidr('172.16.129.81', 29),
     'dhcp-A-exclusion-start': IPv4.noMask('172.16.128.1'),
     'dhcp-A-exclusion-end': IPv4.noMask('172.16.128.10'),
     'dhcp-B-exclusion-start': IPv4.noMask('172.16.128.129'),
@@ -71,7 +71,7 @@ void run() {
 
   print('>>> R1 <<<\n');
 
-  Device.script('router').enable((x) => x
+  Device('router').enable((x) => x
     ..configure((x) => x
       ..setHostname('R1')
       ..ip.dnsLookup.disable()
@@ -155,7 +155,7 @@ void run() {
 
   print('\n>>> R2 <<<\n');
 
-  Device.script('router').enable((x) => x
+  Device('router').enable((x) => x
     ..configure((x) => x
       ..setHostname('R2')
       ..ip.dnsLookup.disable()
@@ -193,7 +193,7 @@ void run() {
 
   print('\n>>> S1 <<<\n');
 
-  Device.script('switch').enable((x) => x
+  Device('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S1')
       ..ip.dnsLookup.disable()
@@ -253,7 +253,7 @@ void run() {
 
   print('\n>>> S2 <<<\n');
 
-  Device.script('switch').enable((x) => x
+  Device('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S2')
       ..ip.dnsLookup.disable()
@@ -294,14 +294,14 @@ void run() {
         ..etherChannel.enablePAgP(3)
         ..operation.enable()
       )
-      ..interfaces('f0/23', (x) => x
+      ..interface('f0/23', (x) => x
         ..switchport.access.enable()
         ..switchport.access.setVlan(20)
         ..spanningTree.portfast.enable()
         ..spanningTree.portfast.bpduGuard.enable()
         ..operation.enable()
       )
-      ..interfaces('f0/24', (x) => x
+      ..interface('f0/24', (x) => x
         ..switchport.access.enable()
         ..switchport.access.setVlan(30)
         ..spanningTree.portfast.enable()
@@ -319,7 +319,7 @@ void run() {
 
   print('\n>>> S3 <<<\n');
 
-  Device.script('switch').enable((x) => x
+  Device('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S3')
       ..ip.dnsLookup.disable()
@@ -375,7 +375,7 @@ void run() {
 
   print('\n>>> S4 <<<\n');
 
-  Device.script('switch').enable((x) => x
+  Device('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S4')
       ..ip.dnsLookup.disable()
