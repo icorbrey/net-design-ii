@@ -76,13 +76,13 @@
 | X | R2       | g0/0/0.30 | Enabled  |        |                | 192.168.3.0/24         |                        | 30                 |                    |                    |          |            |               |             |
 | X | R2       | g0/0/0.40 | Enabled  |        |                | 192.168.4.0/24         |                        | 40                 |                    |                    |          |            |               |             |
 | X | R2       | g0/0/1    | Enabled  | trunk  | 10, 20, 30, 40 | 10.10.10.4/30          |                        |                    |                    |                    |          |            |               |             |
-| X | R2       | s0/2/0    | Enabled  |        |                | 10.10.10.8/30          |                        |                    |                    |                    |          |            |               |             |
+| X | R2       | s0/1/0    | Enabled  |        |                | 10.10.10.8/30          |                        |                    |                    |                    |          |            |               |             |
 | X | R3       | g0/0/0    | Enabled  | trunk  | 10, 20, 30, 40 | 172.16.21.0/24         | 2001:db8:acad:1::/64   |                    |                    |                    |          |            |               |             |
 | X | R3       | g0/0/1    | Enabled  | trunk  | 10, 20, 30, 40 | 10.10.10.16/30         | 2001:db8:acad:2::/64   |                    |                    |                    |          |            |               |             |
 | X | R4       | g0/0/0    | Enabled  | trunk  | 10, 20, 30, 40 | 10.10.10.0/30          |                        |                    |                    |                    |          |            |               |             |
 | X | R4       | g0/0/1    | Enabled  | trunk  | 10, 20, 30, 40 | 10.10.10.16/30         |                        |                    |                    |                    |          |            |               |             |
-| X | R4       | s0/2/0    | Enabled  |        |                | 10.10.10.4/30          |                        |                    |                    |                    |          |            |               |             |
-| X | R4       | s0/2/1    | Enabled  |        |                | 10.10.10.12/30         |                        |                    |                    |                    |          |            |               |             |
+| X | R4       | s0/1/0    | Enabled  |        |                | 10.10.10.4/30          |                        |                    |                    |                    |          |            |               |             |
+| X | R4       | s0/1/1    | Enabled  |        |                | 10.10.10.12/30         |                        |                    |                    |                    |          |            |               |             |
 | X | S1       | VLAN 40   | Enabled  |        |                | 192.168.4.0/24         |                        |                    |                    |                    |          |            |               |             |
 | X | S1       | f0/1      | Enabled  | trunk  | 10, 20, 30, 40 |                        |                        |                    | PAgP               | 1                  |          |            |               |             |
 | X | S1       | f0/2      | Enabled  | trunk  | 10, 20, 30, 40 |                        |                        |                    | PAgP               | 1                  |          |            |               |             |
@@ -92,7 +92,7 @@
 | X | S1       | f0/6-23   | Disabled |        |                |                        |                        |                    |                    |                    |          |            |               |             |
 | X | S1       | f0/24     | Enabled  | access | 10             |                        |                        |                    |                    |                    | Enabled  | Enabled    |               |             |
 | X | S2       | VLAN 40   | Enabled  |        |                | 192.168.4.0/24         |                        |                    |                    |                    |          |            |               |             |
-|   | S2       | g0/1      | Enabled  | trunk  | 10, 20, 30, 40 |                        |                        |                    |                    |                    |          |            |               |             |
+| X | S2       | g0/1      | Enabled  | trunk  | 10, 20, 30, 40 |                        |                        |                    |                    |                    |          |            |               |             |
 | X | S2       | f0/1-2    | Disabled |        |                |                        |                        |                    |                    |                    |          |            |               |             |
 | X | S2       | f0/3      | Enabled  | trunk  | 10, 20, 30, 40 |                        |                        |                    | PAgP               | 2                  |          |            |               |             |
 | X | S2       | f0/4      | Enabled  | trunk  | 10, 20, 30, 40 |                        |                        |                    | PAgP               | 2                  |          |            |               |             |
@@ -103,7 +103,7 @@
 | X | S2       | f0/23     | Enabled  | access | 20             |                        |                        |                    |                    |                    | Enabled  | Enabled    |               |             |
 | X | S2       | f0/24     | Disabled |        |                |                        |                        |                    |                    |                    |          |            |               |             |
 | X | S3       | VLAN 40   | Enabled  |        |                | 192.168.4.0/24         |                        |                    |                    |                    |          |            |               |             |
-|   | S3       | g0/1      | Enabled  | trunk  | 10, 20, 30, 40 |                        |                        |                    |                    |                    |          |            |               |             |
+| X | S3       | g0/1      | Enabled  | trunk  | 10, 20, 30, 40 |                        |                        |                    |                    |                    |          |            |               |             |
 | X | S3       | f0/1      | Enabled  | trunk  | 10, 20, 30, 40 |                        |                        |                    | PAgP               | 1                  |          |            |               |             |
 | X | S3       | f0/2      | Enabled  | trunk  | 10, 20, 30, 40 |                        |                        |                    | PAgP               | 1                  |          |            |               |             |
 | X | S3       | f0/3-4    | Disabled |        |                |                        |                        |                    |                    |                    |          |            |               |             |
@@ -115,9 +115,9 @@
 |   | S4       | f0/1-10   | Disabled | access |                |                        |                        |                    |                    |                    |          |            |               |             |
 |   | S4       | f0/11     | Enabled  | access |                |                        |                        |                    |                    |                    |          |            | Protect       | 1           |
 |   | S4       | f0/12-24  | Disabled | access |                |                        |                        |                    |                    |                    |          |            |               |             |
-|   | ISP      | s0/2/0    | Enabled  |        |                | 10.10.10.12/30         |                        |                    |                    |                    |          |            |               |             |
-|   | ISP      | s0/2/1    | Enabled  |        |                | 10.10.10.8/30          |                        |                    |                    |                    |          |            |               |             |
-|   | ISP      | loop0     | Enabled  |        |                | 193.45.28.0/30         |                        |                    |                    |                    |          |            |               |             |
+| X | ISP      | s0/1/0    | Enabled  |        |                | 10.10.10.12/30         |                        |                    |                    |                    |          |            |               |             |
+| X | ISP      | s0/1/1    | Enabled  |        |                | 10.10.10.8/30          |                        |                    |                    |                    |          |            |               |             |
+| X | ISP      | loop0     | Enabled  |        |                | 193.45.28.0/30         |                        |                    |                    |                    |          |            |               |             |
 |   | PC A     | NIC       | Enabled  |        |                | 192.168.1.0/24         |                        |                    |                    |                    |          |            |               |             |
 |   | PC B     | NIC       | Enabled  |        |                | 192.168.2.0/24         |                        |                    |                    |                    |          |            |               |             |
 |   | PC C     | NIC       | Enabled  |        |                | 192.168.3.0/24         |                        |                    |                    |                    |          |            |               |             |
@@ -133,7 +133,42 @@
 |   | R4     | Marketing   | 30   | 192.168.3.0/24 |
 |   | R4     | Management  | 40   | 192.168.4.0/24 |
 
+## Networks
+
+| Name | Connection | Network        |
+|------|------------|----------------|
+| A    | VLAN 10    | 192.168.1.0/24 |
+| B    | VLAN 20    | 192.168.2.0/24 |
+| C    | VLAN 30    | 192.168.3.0/24 |
+| D    | VLAN 40    | 192.168.4.0/24 |
+| E    | R1 to R4   | 10.10.10.0/30  |
+| F    | R2 to R4   | 10.10.10.4/30  |
+| G    | R2 to ISP  | 10.10.10.8/30  |
+| H    | R4 to ISP  | 10.10.10.12/30 |
+| I    | R4 to R3   | 10.10.10.16/30 |
+| J    | R3 to PC3  | 172.16.21.0/24 |
+
 ## Routes
 
-| X | Device | Destination | Subnet Mask | Next Hop | Administrative Distance |
-|---|--------|-------------|-------------|----------|-------------------------|
+> | Type                   | Dest. IP        | Dest. Mask      | Exit Interface | Next Hop        | Admin. Distance |
+> |------------------------|-----------------|-----------------|----------------|-----------------|-----------------|
+> | Static Default         | 0.0.0.0         | 0.0.0.0         |                | xxx.xxx.xxx.xxx |                 |
+> | Static Summary         | xxx.xxx.xx0.000 | xxx.xx0.000.000 |                | xxx.xxx.xxx.xxx |                 |
+> | Recursive Static       | xxx.xxx.xxx.xxx | xxx.xxx.xxx.xxx |                | xxx.xxx.xxx.xxx |                 |
+> | Static Floating        | xxx.xxx.xxx.xxx | xxx.xxx.xxx.xxx |                | xxx.xxx.xxx.xxx | X               |
+> | Fully Specified Static | xxx.xxx.xxx.xxx | xxx.xxx.xxx.xxx | aX/Y/Z         | xxx.xxx.xxx.xxx |                 |
+
+| X | Device | Destination IP | Destination Mask | Exit Interface | Next Hop    | Admin. Distance |
+|---|--------|----------------|------------------|----------------|-------------|-----------------|
+| X | R1     | 0.0.0.0        | 0.0.0.0          |                | 172.16.21.0 |                 |
+| X | R1     | 0.0.0.0        | 0.0.0.0          | g0/0/1         | 10.10.10.0  |                 |
+| X | R2     | 0.0.0.0        | 0.0.0.0          |                | 172.16.21.0 |                 |
+| X | R2     | 172.16.21.0    | /24              |                | 10.10.10.4  | 5               |
+| X | R3     | 0.0.0.0        | 0.0.0.0          |                | 172.16.21.0 |                 |
+| X | R3     | 192.168.0.0    | /21              |                | 172.16.21.0 |                 |
+| X | R3     | ::             | /64              |                |             |                 |
+| X | R4     | 0.0.0.0        | 0.0.0.0          |                | 172.16.21.0 |                 |
+| X | R4     | 172.16.21.0    | /24              |                | 10.10.10.4  | 5               |
+| X | R4     | ::             | /64              |                |             |                 |
+| X | ISP    | 0.0.0.0        | 0.0.0.0          |                | 172.16.21.0 |                 |
+| X | ISP    | 0.0.0.0        | 0.0.0.0          | loop0          |             |                 |

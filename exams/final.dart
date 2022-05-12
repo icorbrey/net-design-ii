@@ -15,6 +15,21 @@ void run() {
   var vlan_30_name = 'Marketing';
   var vlan_40_name = 'Management';
 
+  var default_route = IPv4.fromMask('0.0.0.0', '0.0.0.0');
+
+  var network_a = IPv4.fromCidr('192.168.1.0', 24);
+  var network_b = IPv4.fromCidr('192.168.2.0', 24);
+  var network_c = IPv4.fromCidr('192.168.3.0', 24);
+  var network_d = IPv4.fromCidr('192.168.4.0', 24);
+  var network_e = IPv4.fromCidr('10.10.10.0', 30);
+  var network_f = IPv4.fromCidr('10.10.10.4', 30);
+  var network_g = IPv4.fromCidr('10.10.10.8', 30);
+  var network_h = IPv4.fromCidr('10.10.10.12', 30);
+  var network_i = IPv4.fromCidr('10.10.10.16', 30);
+  var network_j = IPv4.fromCidr('172.16.21.0', 24);
+
+  var network_abcd_summary = IPv4.fromCidr('192.168.0.0', 21);
+
   var trunk_vlans = [10, 20, 30, 40];
 
   print('>>> R1 <<<\n');
@@ -22,8 +37,8 @@ void run() {
   Device('router').enable((x) => x
     ..configure((x) => x
       ..setHostname('R1')
-      ..ip.dnsLookup.disable()
-      ..ip.setDomainName(domain)
+      ..ipv4.dnsLookup.disable()
+      ..ipv4.setDomainName(domain)
       ..setConfigPassword(password_config)
       ..setMessageOfTheDay(messageOfTheDay)
       ..services.passwordEncryption.enable()
@@ -42,31 +57,47 @@ void run() {
       )
       ..subinterface('g0/0/0.10', (x) => x
         ..encapsulateVlan(10)
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.1.0', 24))
+        ..ipv4.setGateway(network_a)
+        ..hsrp.enable()
+        ..hsrp.setStandbyGatewayForGroup(1, network_a)
+        ..hsrp.setStandbyRouterPriority(1, 100)
         ..enable()
       )
       ..subinterface('g0/0/0.20', (x) => x
         ..encapsulateVlan(20)
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.2.0', 24))
+        ..ipv4.setGateway(network_b)
+        ..hsrp.enable()
+        ..hsrp.setStandbyGatewayForGroup(1, network_b)
+        ..hsrp.setStandbyRouterPriority(1, 100)
         ..enable()
       )
       ..subinterface('g0/0/0.30', (x) => x
         ..encapsulateVlan(30)
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.3.0', 24))
+        ..ipv4.setGateway(network_c)
+        ..hsrp.enable()
+        ..hsrp.setStandbyGatewayForGroup(1, network_c)
+        ..hsrp.setStandbyRouterPriority(1, 100)
         ..enable()
       )
       ..subinterface('g0/0/0.40', (x) => x
         ..encapsulateVlan(40)
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.4.0', 24))
+        ..ipv4.setGateway(network_d)
+        ..hsrp.enable()
+        ..hsrp.setStandbyGatewayForGroup(1, network_d)
+        ..hsrp.setStandbyRouterPriority(1, 100)
         ..enable()
       )
       ..interface('g0/0/1', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('10.10.10.0', 30))
+        ..ipv4.setGateway(network_e)
         ..switchport.trunk.enable()
         ..switchport.trunk.setAllowedVlans(trunk_vlans)
         ..enable()
       )
+      ..ipv4.routing.enable()
+      ..ipv4.routing.createStaticDefaultRoute(network_j)
+      ..ipv4.routing.createFullySpecifiedStaticRoute(default_route, network_e, 'g0/0/1')
     )
+    ..saveConfig()
   );
 
   print('\n>>> R2 <<<\n');
@@ -74,8 +105,8 @@ void run() {
   Device('router').enable((x) => x
     ..configure((x) => x
       ..setHostname('R2')
-      ..ip.dnsLookup.disable()
-      ..ip.setDomainName(domain)
+      ..ipv4.dnsLookup.disable()
+      ..ipv4.setDomainName(domain)
       ..setConfigPassword(password_config)
       ..setMessageOfTheDay(messageOfTheDay)
       ..services.passwordEncryption.enable()
@@ -94,35 +125,55 @@ void run() {
       )
       ..subinterface('g0/0/0.10', (x) => x
         ..encapsulateVlan(10)
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.1.0', 24))
+        ..ipv4.setGateway(network_a)
+        ..hsrp.enable()
+        ..hsrp.setStandbyGatewayForGroup(1, network_a)
+        ..hsrp.setStandbyRouterPriority(1, 150)
+        ..hsrp.allowPrimaryRouterToRetakeControl(1)
         ..enable()
       )
       ..subinterface('g0/0/0.20', (x) => x
         ..encapsulateVlan(20)
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.2.0', 24))
+        ..ipv4.setGateway(network_b)
+        ..hsrp.enable()
+        ..hsrp.setStandbyGatewayForGroup(1, network_b)
+        ..hsrp.setStandbyRouterPriority(1, 150)
+        ..hsrp.allowPrimaryRouterToRetakeControl(1)
         ..enable()
       )
       ..subinterface('g0/0/0.30', (x) => x
         ..encapsulateVlan(30)
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.3.0', 24))
+        ..ipv4.setGateway(network_c)
+        ..hsrp.enable()
+        ..hsrp.setStandbyGatewayForGroup(1, network_c)
+        ..hsrp.setStandbyRouterPriority(1, 150)
+        ..hsrp.allowPrimaryRouterToRetakeControl(1)
         ..enable()
       )
       ..subinterface('g0/0/0.40', (x) => x
         ..encapsulateVlan(40)
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.4.0', 24))
+        ..ipv4.setGateway(network_d)
+        ..hsrp.enable()
+        ..hsrp.setStandbyGatewayForGroup(1, network_d)
+        ..hsrp.setStandbyRouterPriority(1, 150)
+        ..hsrp.allowPrimaryRouterToRetakeControl(1)
         ..enable()
       )
       ..interface('g0/0/1', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('10.10.10.4', 30))
+        ..ipv4.setGateway(network_f)
         ..switchport.trunk.enable()
         ..switchport.trunk.setAllowedVlans(trunk_vlans)
         ..enable()
       )
-      ..interface('s0/2/0', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('10.10.10.8', 30))
+      ..interface('s0/1/0', (x) => x
+        ..ipv4.setGateway(network_g)
         ..enable()
       )
+      ..ipv4.routing.enable()
+      ..ipv4.routing.createStaticDefaultRoute(network_j)
+      ..ipv4.routing.createStaticFloatingRoute(network_j, network_f, 5)
     )
+    ..saveConfig()
   );
   
   print('\n>>> R3 <<<\n');
@@ -130,8 +181,8 @@ void run() {
   Device('router').enable((x) => x
     ..configure((x) => x
       ..setHostname('R3')
-      ..ip.dnsLookup.disable()
-      ..ip.setDomainName(domain)
+      ..ipv4.dnsLookup.disable()
+      ..ipv4.setDomainName(domain)
       ..setConfigPassword(password_config)
       ..setMessageOfTheDay(messageOfTheDay)
       ..services.passwordEncryption.enable()
@@ -144,20 +195,26 @@ void run() {
         ..login.setType('local')
       )
       ..interface('g0/0/0', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('172.16.21.0', 24))
+        ..ipv4.setGateway(network_j)
         ..ipv6.addGateway(IPv6.fromCidr('2001:db8:acad:1::', 64))
         ..switchport.trunk.enable()
         ..switchport.trunk.setAllowedVlans(trunk_vlans)
         ..enable()
       )
       ..interface('g0/0/1', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('10.10.10.16', 30))
+        ..ipv4.setGateway(network_i)
         ..ipv6.addGateway(IPv6.fromCidr('2001:db8:acad:2::', 64))
         ..switchport.trunk.enable()
         ..switchport.trunk.setAllowedVlans(trunk_vlans)
         ..enable()
       )
+      ..ipv4.routing.enable()
+      ..ipv4.routing.createStaticDefaultRoute(network_j)
+      ..ipv4.routing.createRecursiveStaticRoute(network_abcd_summary, network_j)
+      ..ipv6.routing.enable()
+      ..ipv6.routing.createStaticDefaultRoute(IPv6.fromCidr('::', 64), IPv6.fromCidr('::', 64))
     )
+    ..saveConfig()
   );
   
   print('\n>>> R4 <<<\n');
@@ -165,8 +222,8 @@ void run() {
   Device('router').enable((x) => x
     ..configure((x) => x
       ..setHostname('R4')
-      ..ip.dnsLookup.disable()
-      ..ip.setDomainName(domain)
+      ..ipv4.dnsLookup.disable()
+      ..ipv4.setDomainName(domain)
       ..setConfigPassword(password_config)
       ..setMessageOfTheDay(messageOfTheDay)
       ..services.passwordEncryption.enable()
@@ -179,26 +236,32 @@ void run() {
         ..login.setType('local')
       )
       ..interface('g0/0/0', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('10.10.10.0', 30))
+        ..ipv4.setGateway(network_e)
         ..switchport.trunk.enable()
         ..switchport.trunk.setAllowedVlans(trunk_vlans)
         ..enable()
       )
       ..interface('g0/0/1', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('10.10.10.16', 30))
+        ..ipv4.setGateway(network_i)
         ..switchport.trunk.enable()
         ..switchport.trunk.setAllowedVlans(trunk_vlans)
         ..enable()
       )
-      ..interface('s0/2/0', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('10.10.10.4', 30))
+      ..interface('s0/1/0', (x) => x
+        ..ipv4.setGateway(network_f)
         ..enable()
       )
-      ..interface('s0/2/1', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('10.10.10.12', 30))
+      ..interface('s0/1/1', (x) => x
+        ..ipv4.setGateway(network_h)
         ..enable()
       )
+      ..ipv4.routing.enable()
+      ..ipv4.routing.createStaticDefaultRoute(network_j)
+      ..ipv4.routing.createStaticFloatingRoute(network_j, network_f, 5)
+      ..ipv6.routing.enable()
+      ..ipv6.routing.createStaticDefaultRoute(IPv6.fromCidr('::', 64), IPv6.fromCidr('::', 64))
     )
+    ..saveConfig()
   );
   
   print('\n>>> ISP <<<\n');
@@ -206,7 +269,23 @@ void run() {
   Device('router').enable((x) => x
     ..configure((x) => x
       ..setHostname('ISP')
+      ..interface('s0/1/0', (x) => x
+        ..ipv4.setGateway(network_h)
+        ..enable()
+      ) 
+      ..interface('s0/1/1', (x) => x
+        ..ipv4.setGateway(network_g)
+        ..enable()
+      ) 
+      ..interface('loop0', (x) => x
+        ..ipv4.setGateway(IPv4.fromCidr('193.45.28.0', 30))
+        ..enable()
+      )
+      ..ipv4.routing.enable()
+      ..ipv4.routing.createStaticDefaultRoute(network_j)
+      ..ipv4.routing.createStaticDefaultInterfaceRoute('loop0')
     )
+    ..saveConfig()
   );
   
   print('\n>>> S1 <<<\n');
@@ -214,7 +293,7 @@ void run() {
   Device('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S1')
-      ..ip.dnsLookup.disable()
+      ..ipv4.dnsLookup.disable()
       ..setConfigPassword(password_config)
       ..setMessageOfTheDay(messageOfTheDay)
       ..services.passwordEncryption.enable()
@@ -239,7 +318,7 @@ void run() {
         ..login.setType('local')
       )
       ..interface('vlan 40', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.4.0', 24))
+        ..ipv4.setGateway(network_d)
         ..enable()
       )
       ..interface('f0/1', (x) => x
@@ -282,7 +361,10 @@ void run() {
         ..spanningTree.portfast.bpduGuard.enable()
         ..enable()
       )
+      ..spanningTree.enableRapidPVST()
+      ..spanningTree.setPriorityValueByOffset(20, -1)
     )
+    ..saveConfig()
   );
   
   print('\n>>> S2 <<<\n');
@@ -290,7 +372,7 @@ void run() {
   Device('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S2')
-      ..ip.dnsLookup.disable()
+      ..ipv4.dnsLookup.disable()
       ..setConfigPassword(password_config)
       ..setMessageOfTheDay(messageOfTheDay)
       ..services.passwordEncryption.enable()
@@ -315,7 +397,12 @@ void run() {
         ..login.setType('local')
       )
       ..interface('vlan 40', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.4.0', 24))
+        ..ipv4.setGateway(network_d)
+        ..enable()
+      )
+      ..interface('g0/1', (x) => x
+        ..switchport.trunk.enable()
+        ..switchport.trunk.setAllowedVlans(trunk_vlans)
         ..enable()
       )
       ..interfaces('f0/1-2', (x) => x
@@ -362,7 +449,10 @@ void run() {
         ..spanningTree.portfast.bpduGuard.enable()
         ..enable()
       )
+      ..spanningTree.enableRapidPVST()
+      ..spanningTree.setPriorityValueByOffset(30, -1)
     )
+    ..saveConfig()
   );
   
   print('\n>>> S3 <<<\n');
@@ -370,7 +460,7 @@ void run() {
   Device('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S3')
-      ..ip.dnsLookup.disable()
+      ..ipv4.dnsLookup.disable()
       ..setConfigPassword(password_config)
       ..setMessageOfTheDay(messageOfTheDay)
       ..services.passwordEncryption.enable()
@@ -395,7 +485,12 @@ void run() {
         ..login.setType('local')
       )
       ..interface('vlan 40', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('192.168.4.0', 24))
+        ..ipv4.setGateway(network_d)
+        ..enable()
+      )
+      ..interface('g0/1', (x) => x
+        ..switchport.trunk.enable()
+        ..switchport.trunk.setAllowedVlans(trunk_vlans)
         ..enable()
       )
       ..interface('f0/1', (x) => x
@@ -428,7 +523,10 @@ void run() {
       ..interfaces('f0/7-24', (x) => x
         ..disable()
       )
+      ..spanningTree.enableRapidPVST()
+      ..spanningTree.setPriorityValueByOffset(10, -1)
     )
+    ..saveConfig()
   );
   
   print('\n>>> S4 <<<\n');
@@ -436,7 +534,7 @@ void run() {
   Device('switch').enable((x) => x
     ..configure((x) => x
       ..setHostname('S4')
-      ..ip.dnsLookup.disable()
+      ..ipv4.dnsLookup.disable()
       ..setConfigPassword(password_config)
       ..setMessageOfTheDay(messageOfTheDay)
       ..services.passwordEncryption.enable()
@@ -461,9 +559,10 @@ void run() {
         ..login.setType('local')
       )
       ..interface('vlan 10', (x) => x
-        ..ipv4.setGateway(IPv4.fromCidr('172.16.21.0', 24))
+        ..ipv4.setGateway(network_j)
         ..enable()
       )
     )
+    ..saveConfig()
   );
 }
